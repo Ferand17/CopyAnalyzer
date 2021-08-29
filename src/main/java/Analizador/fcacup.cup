@@ -1,0 +1,84 @@
+package Analizador;
+import java_cup.runtime.Symbol;
+parser code
+{:
+    private Symbol s;
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal  Compare, DefinirGlobales, GraficaBarras, String, Double, Titulo,
+Ejex, Valores, PuntajeEspecifico,  PuntajeGeneral, TituloX, TituloY, GraficaPie, GraficaLineas, GenerarReporteEstadistico, 
+Archivo, Cadena, CadenaS, LlaveA, LlaveC, ParenA, ParenC, PuntoComa, DosPuntos, Igual,
+Dollar, CorcheA, CorcheC, Coma, Identificador, Numero;
+non terminal INICIO, REPORTE, VARIABLE, EJECUTARREPORTE, CONFIGURACION,
+TIPODATO, DATO, CARACTERISTICA, LISTA;
+
+start with INICIO;
+
+INICIO ::= 
+    REPORTE 
+;
+
+REPORTE ::= 
+    REPORTE DefinirGlobales LlaveA VARIABLE LlaveC |
+    REPORTE GraficaBarras LlaveA CONFIGURACION LlaveC |
+    REPORTE GraficaPie LlaveA CONFIGURACION LlaveC |
+    REPORTE GraficaLineas LlaveA CONFIGURACION LlaveC |
+    REPORTE GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC |
+    DefinirGlobales LlaveA VARIABLE LlaveC |
+    GraficaBarras LlaveA CONFIGURACION LlaveC |
+    GraficaPie LlaveA CONFIGURACION LlaveC |
+    GraficaLineas LlaveA CONFIGURACION LlaveC |
+    GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC
+;
+
+VARIABLE ::= 
+    VARIABLE TIPODATO Identificador Igual DATO PuntoComa |
+    TIPODATO Identificador Igual DATO PuntoComa
+;
+
+EJECUTARREPORTE ::=
+    Compare ParenA Cadena Coma Cadena ParenC PuntoComa |
+    Compare ParenA CadenaS Coma CadenaS ParenC PuntoComa
+;
+
+CONFIGURACION ::=
+    CONFIGURACION CARACTERISTICA DosPuntos DATO PuntoComa |
+    CARACTERISTICA DosPuntos DATO PuntoComa
+;
+
+TIPODATO ::=
+    String |
+    Double
+;
+
+DATO ::=
+    Identificador |
+    Numero |
+    Cadena |
+    CadenaS |
+    CorcheA LISTA CorcheC |
+    Dollar LlaveA PuntajeGeneral LlaveC |
+    Dollar LlaveA PuntajeEspecifico Coma Cadena Coma Cadena Coma Cadena LlaveC
+;
+
+CARACTERISTICA ::=
+    Titulo |
+    Ejex |
+    Valores |
+    TituloX |
+    TituloY |
+    Archivo 
+;
+
+LISTA ::=
+    LISTA DATO Coma |
+    LISTA DATO |
+    DATO Coma |
+    DATO
+;
