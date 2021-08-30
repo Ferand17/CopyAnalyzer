@@ -1,4 +1,4 @@
-package Analizador;
+package AnalizadorFCA;
 import Modelos.Token;
 %%
 %public

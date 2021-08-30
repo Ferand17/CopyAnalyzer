@@ -1,8 +1,8 @@
 package Main;
 
-import Analizador.FcaCup;
-import Analizador.Fcalex;
-import Analizador.FcalexCup;
+import AnalizadorFCA.FcaCup;
+import AnalizadorFCA.Fcalex;
+import AnalizadorFCA.FcalexCup;
 import Modelos.Token;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.io.File;

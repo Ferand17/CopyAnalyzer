@@ -1,4 +1,4 @@
-package Analizador;
+package AnalizadorFCA;
 import java_cup.runtime.Symbol;
 parser code
 {:

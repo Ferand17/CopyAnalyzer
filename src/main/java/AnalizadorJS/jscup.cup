@@ -1,0 +1,143 @@
+package AnalizadorJS;
+import java_cup.runtime.Symbol;
+parser code
+{:
+    private Symbol s;
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal Class, Var, Let, Const, If, Else, True, False, For, While, Do, Switch,
+    Break, Case, Default, Console, Log, Require, LlaveA, LlaveC, ParenA, ParenC,
+    Coma, PuntoComa, Igual, Mayor, Menor, MayorIgual, MenorIgual, Diferencia,
+    AND, OR, Negacion, Incremento, Igualacion, Decremento, Mas, Menos, Multiplicacion,
+    Division, Potencia, Modulo, Punto, Cadena, CadenaS, Identificador, Entero,
+    Decimal, DosPuntos;
+non terminal INICIO, ;
+
+start with INICIO;
+
+INICIO ::= 
+    INSTRUCCION
+;
+
+INSTRUCCION ::=
+    INSTRUCCION Console Punto Log ParenA DATO ParenC |
+    INSTRUCCION Console Punto Log ParenA DATO ParenC PuntoComa |
+    INSTRUCCION 
+    INSTRUCCION 
+    INSTRUCCION 
+    INSTRUCCION 
+    Console Punto Log ParenA DATO ParenC |
+    Console Punto Log ParenA DATO ParenC PuntoComa |
+;
+
+DATO ::=
+    OPERACION |
+    OPERACIONBOOL |
+    True |
+    False |
+    Require ParenA Cadena ParenC |
+    Require ParenA CadenaS ParenC |
+    Identificador |
+    Decimal |
+    Entero |
+    Cadena |
+    CadenaS |
+    FUNCION 
+;
+
+PARAMETRO ::=
+    PARAMETRO DATO Coma |
+    PARAMETRO DATO |
+    DATO Coma |
+    DATO
+;
+
+TIPODATO ::=
+    Var |
+    Let |
+    Const
+;
+
+OPERACION ::=
+    OPERACION Mas OPERACION |
+    OPERACION Menos OPERACION |
+    OPERACION Multiplicacion OPERACION |
+    OPERACION Division OPERACION |
+    OPERACION Potencia OPERACION |
+    OPERACION Modulo OPERACION |
+    ParenA OPERACION ParenC |
+    OPERACION Incremento |
+    OPERACION Decremento |
+    Menos OPERACION |
+    DATO
+;
+
+OPERACIONBOOL ::=
+    OPERACIONBOOL Mayor OPERACIONBOOL |
+    OPERACIONBOOL Menor OPERACIONBOOL |
+    OPERACIONBOOL MayorIgual OPERACIONBOOL |
+    OPERACIONBOOL MenorIgual OPERACIONBOOL |
+    OPERACIONBOOL Igualacion OPERACIONBOOL |
+    OPERACIONBOOL Diferencia OPERACIONBOOL |
+    OPERACIONBOOL AND OPERACIONBOOL |
+    OPERACIONBOOL OR OPERACIONBOOL |
+    Negacion OPERACIONBOOL |
+    ParenA OPERACIONBOOL ParenC |
+    DATO
+;
+
+CLASE ::=
+    Class Identificador ParenA ParenC LlaveA INSTRUCCION LlaveC
+;
+
+FUNCION ::=
+    Identificador ParenA ParenC LlaveA INSTRUCCION LlaveC |
+    Identificador ParenA PARAMETRO ParenC LlaveA INSTRUCCION LlaveC |
+    Identificador ParenA ParenC |
+    Identificador ParenA PARAMETRO ParenC
+;
+
+DOWHILE ::=
+    Do LlaveA INSTRUCCION LlaveC While ParenA OPERACIONBOOL ParenC
+;
+
+WHILE ::=
+    While ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC
+;
+
+SWITCH ::=
+    LlaveA CASE DEFAULT LlaveC 
+;
+
+CASE ::=
+    CASE Case DATO DosPuntos INSTRUCCION Break PuntoComa |
+    CASE Case DATO DosPuntos INSTRUCCION Break |
+    Case DATO DosPuntos INSTRUCCION Break PuntoComa |
+    Case DATO DosPuntos INSTRUCCION Break |
+;
+
+DEFAULT ::=
+    Default DosPuntos INSTRUCCION Break |
+    Default DosPuntos INSTRUCCION Break PuntoComa
+;
+
+FOR ::=
+    For ParenA VARIABLE PuntoComa OPERACIONBOOL PuntoComa OPERACION ParenC LlaveA INSTRUCCION LlaveC
+;
+
+VARIABLE ::=
+    TIPODATO Identificador Igual DATO |
+    Identificador Igual DATO 
+;
+
+IF ::=
+    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC |
+    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC Else IF|
+    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC Else LlaveA INSTRUCCION LlaveC |
+;

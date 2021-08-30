@@ -4,7 +4,7 @@
 // Tue Aug 24 23:32:24 CST 2021
 //----------------------------------------------------
 
-package Analizador;
+package AnalizadorFCA;
 
 /** CUP generated class containing symbol constants. */
 public class sym {
