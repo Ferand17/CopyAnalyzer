@@ -32,6 +32,7 @@ espacio=[ \t\r\n\f\b]+
 
 /* Comentarios */
 "//"(.)* {
+
 }
 
 /* class */
@@ -76,7 +77,7 @@ return new Symbol(sym.False, yychar, yyline, yytext());
 
 /* for */
 ( "for" ) {
-return new Symbol(sym.For, yychar, yyline, yytext());;
+return new Symbol(sym.For, yychar, yyline, yytext());
 }
 
 /* While */
@@ -134,6 +135,16 @@ return new Symbol(sym.LlaveA, yychar, yyline, yytext());
 return new Symbol(sym.LlaveC, yychar, yyline, yytext());
 }
 
+/* Llave de cerradura */
+( "[" ) {
+return new Symbol(sym.CorcheA, yychar, yyline, yytext());
+}
+
+/* Llave de cerradura */
+( "]" ) {
+return new Symbol(sym.CorcheC, yychar, yyline, yytext());
+}
+
 /* Parentesis Apertura */
 ( "(" ) {
 return new Symbol(sym.ParenA, yychar, yyline, yytext());
@@ -146,7 +157,7 @@ return new Symbol(sym.ParenC, yychar, yyline, yytext());
 
 /* Coma */
 ( "," ) {
-return new Symbol(sym.Coma, yychar, yyline, yytext());;
+return new Symbol(sym.Coma, yychar, yyline, yytext());
 }
 
 /* Punto y Coma */
@@ -214,6 +225,11 @@ return new Symbol(sym.Incremento, yychar, yyline, yytext());
 return new Symbol(sym.Igualacion, yychar, yyline, yytext());
 }
 
+/* Igualacion */
+( "===" ) {
+return new Symbol(sym.IgualacionS, yychar, yyline, yytext());
+}
+
 /* Decremento */
 ( "--" ) {
 return new Symbol(sym.Decremento, yychar, yyline, yytext());
@@ -239,6 +255,15 @@ return new Symbol(sym.Multiplicacion, yychar, yyline, yytext());
 return new Symbol(sym.Division, yychar, yyline, yytext());
 }
 
+/* Potencia */
+( "+=" ) {
+return new Symbol(sym.MasIgual, yychar, yyline, yytext());
+}
+
+/* Potencia */
+( "-=" ) {
+return new Symbol(sym.MenosIgual, yychar, yyline, yytext());
+}
 /* Potencia */
 ( "**" ) {
 return new Symbol(sym.Potencia, yychar, yyline, yytext());
@@ -270,12 +295,12 @@ return new Symbol(sym.Identificador, yychar, yyline, yytext());
 }
 
 /* Numero */
-"-"?{D}+ {
+{D}+ {
 return new Symbol(sym.Entero, yychar, yyline, yytext());
 }
 
 /* Numero */
-"-"?{D}+"."?{D}+ {
+{D}+"."?{D}+ {
 return new Symbol(sym.Decimal, yychar, yyline, yytext());
 }
 

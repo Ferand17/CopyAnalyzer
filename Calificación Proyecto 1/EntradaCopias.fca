@@ -1,0 +1,114 @@
+
+#*
+    #####################################################################################################################
+    ############################ ESTE ES EL ARCHIVO DE ENTRADA PARA GENERAR REPORTES ####################################
+    #####################################################################################################################
+*#
+
+GeNeRaRrEpOrTeEsTaDiStIcO{
+
+    ## CARGAMOS LOS PROYECTOS PARA LA CALIFICACIÓN :D
+
+    COMPARE("/home/ferand20/Escritorio/Calificación Proyecto 1/ProyectoA/", "/home/ferand20/Escritorio/Calificación Proyecto 1/ProyectoB/");
+
+    ##definimos las variables globales
+
+    DefinirGlobales {
+
+        string titulolineas = "Resumen Draws";
+        
+        string ejexbarra11 = "Operaciones";
+        string ejexbarra13 = "Category";
+        string ejexbarra15 = "LolPlayer";
+        string ejexbarra17 = "Math";
+        double puntajebarra11 = ${ PuntajeEspecifico, "Calificacion.js", "clase", "Operaciones"};
+        double puntajebarra13 = ${ PuntajeEspecifico, "category.js", "clase", "Category"};
+        double puntajebarra15 = ${ PuntajeEspecifico, "file1.js", "clase", "LolPlayer"};
+        double puntajebarra17 = ${ PuntajeEspecifico, "math.js", "clase", "Math"};
+        string barra1tituloy = "Puntajes";
+        #*
+            Este comentario no debe tomarse en cuenta y no deberia tronar GeNeRaRrEpOrTeEsTaDiStIcO121414"$
+
+            12e2312!##$%$&5456$#$()
+        *#
+        double puntajebarra21 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "aritmeticas"};
+        double puntajebarra22 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "relacionales"};
+        double puntajebarra23 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "logicas"};
+        double puntajebarra24 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "op_aritmeticas"};
+        double puntajebarra25 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "logicas"};
+        double puntajebarra26 = ${ PuntajeEspecifico, "Calificacion.js", "metodo", "Operaciones"};
+        string barra2titulox = "Metodos";
+        string barra2tituloy = "Puntajes";
+
+        string pie11 = "start";
+        string pie12 = "drawSquare";
+        string pie13 = "drawFrame";
+        string pie14 = "drawTriangle";
+        string pie15 = "drawTriangle2";
+        string pie16 = "drawPiramid";
+        string pie17 = "drawPiramid2";
+        string pie18 = "Product";
+
+
+    }
+    
+    #*
+        #####################################################################################################################
+        ###################################### DEFINIMOS LA GRAFICA DE LINEAS DESEADA #######################################
+        #####################################################################################################################
+    *#
+    GraficaLineas {
+
+        Titulo: titulolineas;
+        archivo: "draws.js";
+
+    }
+
+    #*
+        #####################################################################################################################
+        ###################################### DEFINIMOS LAS GRAFICA DE BARRAS DESEADAS #####################################
+        #####################################################################################################################
+    *#
+
+    GraficaBarras {
+
+        Titulo: "Puntaje especifico por clase";
+        EjeX: [ejexbarra11, "Cart", ejexbarra13, "Draws", ejexbarra15, "main", ejexbarra17, "Product"];
+        Valores: [puntajebarra11, ${ PuntajeEspecifico, "cart.js", "clase", "Cart"}, puntajebarra13, ${ PuntajeEspecifico, "draws.js", "clase", "Draws"}, puntajebarra15, ${ PuntajeEspecifico, "main.js", "clase", "main"}, puntajebarra17, ${ PuntajeEspecifico, "product.js", "clase", "Product"}];
+        TituloX: "Clases";
+        TituloY: barra1tituloy;
+
+    }
+
+    GraficaBarras {
+
+        Titulo: "Puntaje metodos calificacion";
+        EjeX: ["aritmeticas", "relacionales", "logicas", "op_aritmeticas","logicas2","Operaciones"];
+        Valores: [puntajebarra21, puntajebarra22, puntajebarra23, puntajebarra24, puntajebarra25, puntajebarra26];
+        TituloX: barra2titulox;
+        TituloY: barra2tituloy;
+
+    }
+
+    #*
+        #####################################################################################################################
+        ######################################## DEFINIMOS LAS GRAFICAS DE PIE DESEADAS #####################################
+        #####################################################################################################################
+    *#
+
+    GraficaPie {
+
+        Titulo: "Puntajes metodos Draws";
+        EjeX: [pie11, pie12, pie13, pie14, pie15, pie16, pie17, pie18];
+        Valores: [${ PuntajeEspecifico, "draws.js", "metodo", "start"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawSquare"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawFrame"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawTriangle"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawTriangle2"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawPiramid"}, ${ PuntajeEspecifico, "draws.js", "metodo", "drawPiramid2"}, ${ PuntajeEspecifico, "draws.js", "metodo", "Product"}];
+    
+    }
+
+    GraficaPie {
+
+        Titulo: "Puntaje de copia General";
+        EjeX: ["Puntaje Copiado", "Puntaje no copiado"];
+        Valores: [${ PuntajeGeneral }, 0.16];
+
+    }
+}

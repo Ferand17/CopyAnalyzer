@@ -1,20 +1,13 @@
 package Main;
 
-import AnalizadorFCA.FcaCup;
-import AnalizadorFCA.Fcalex;
-import AnalizadorFCA.FcalexCup;
-import Modelos.Token;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -29,21 +22,23 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class Frame extends javax.swing.JFrame {
 
-    ArrayList<Token> tokensfca;
-    ArrayList<Token> erroresfca;
-
-    String archivousado;
+    String archivousado,textoConsola;
+    Grafica metodos;
 
     public Frame() {
-        tokensfca = new ArrayList<Token>();
-        erroresfca = new ArrayList<Token>();
         // errores.add(new Token("lexema", "TipoToken","tipo", "columna", "fila"));
         this.archivousado = "";
+        this.metodos = new Grafica();
+        this.textoConsola ="";
         initComponents();
         this.setLocationRelativeTo(null);
-
     }
 
+    public void agregarConsola(String texto){
+        String auxtexto = this.textConsola.getText()+"\n"+texto;
+        this.textConsola.setText(auxtexto);
+    }
+    
     public JTextArea getTextAreaSelected() {
         JScrollPane contenedorScroll = (JScrollPane) this.contenedorEditores.getComponent(this.contenedorEditores.getSelectedIndex());
         JTextArea auxtextarea = (JTextArea) contenedorScroll.getViewport().getView();
@@ -62,7 +57,7 @@ public class Frame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Error al guardar, en la salida");
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -319,50 +314,13 @@ public class Frame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarPestaniaActionPerformed
 
     private void btnEjecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarActionPerformed
-        String datosConsola = "";
-        textConsola.setText(datosConsola);
-        tokensfca.clear();
-        erroresfca.clear();
-        Fcalex fcaLexico = new Fcalex(new StringReader(getTextAreaSelected().getText()));
-        FcaCup fcaSintax = new FcaCup(new FcalexCup(new StringReader(getTextAreaSelected().getText())));
-        boolean bandera = true;
-        while (bandera) {
-            Token aux = null;
-            try {
-                aux = fcaLexico.yylex();
-            } catch (Exception ex) {
-                System.out.println(ex);
-            }
-            if (aux == null) {
-                bandera = false;
-            } else {
-                if (aux.getTipoToken().equalsIgnoreCase("Error")) {
-                    erroresfca.add(aux);
-                } else {
-                    tokensfca.add(aux);
-                }
-            }
-        }
-        try {
-            fcaSintax.parse();
-        } catch (Exception ex) {
-            Symbol sim = fcaSintax.getS();
-                erroresfca.add(new Token(sim.value.toString(), "Sintactico", "Sintactico", (sim.right + 1), (1 + sim.left)));
-        }
-
-        datosConsola += "TOKENS: \n";
-        datosConsola = tokensfca.stream().map(fca -> "Tipo: " + fca.getTipo() + "  Lexema: " + fca.getLexema()
-                + "  Tipo: " + fca.getTipoToken() + "  Fila: " + fca.getFila()
-                + "   Columna: " + fca.getColumna() + "\n").reduce(datosConsola, String::concat);
-        datosConsola += "ERRORES: \n";
-        datosConsola = erroresfca.stream().map(fca -> "Tipo: " + fca.getTipo() + "  Lexema: " + fca.getLexema()
-                + "  Tipo: " + fca.getTipoToken() + "  Fila: " + fca.getFila()
-                + "   Columna: " + fca.getColumna() + "\n").reduce(datosConsola, String::concat);
-        textConsola.setText(datosConsola);
+        this.agregarConsola("Ejecutar...");
+        metodos.analisisFca(getTextAreaSelected().getText(), archivousado);
+        this.agregarConsola("Terminar");
     }//GEN-LAST:event_btnEjecutarActionPerformed
 
     private void btnReporteErroresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteErroresActionPerformed
-        this.createarchivo("ReporteErrores.html", "");
+        this.createarchivo("ReporteErrores.html", this.metodos.ReporteErrores());
         JOptionPane.showMessageDialog(null, "Reporte Errores Creado");
         Runtime rt = Runtime.getRuntime();
         try {
@@ -370,10 +328,11 @@ public class Frame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        agregarConsola("Reporte Errores Creado");
     }//GEN-LAST:event_btnReporteErroresActionPerformed
 
     private void btnReporteEstadisticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteEstadisticoActionPerformed
-        this.createarchivo("ReporteEstadistico.html", "");
+        this.createarchivo("ReporteEstadistico.html", metodos.reporteEstadistico());
         JOptionPane.showMessageDialog(null, "Reporte Estadistico Creado");
         Runtime rt = Runtime.getRuntime();
         try {
@@ -381,10 +340,11 @@ public class Frame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        agregarConsola("Reporte Estadistico Creado");
     }//GEN-LAST:event_btnReporteEstadisticoActionPerformed
 
     private void btnReporteTokensActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteTokensActionPerformed
-        this.createarchivo("ReporteTokens.html", "");
+        this.createarchivo("ReporteTokens.html", this.metodos.ReporteTokens());
         JOptionPane.showMessageDialog(null, "Reporte Tokens Creado");
         Runtime rt = Runtime.getRuntime();
         try {
@@ -392,10 +352,12 @@ public class Frame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        agregarConsola("Reporte Tokens Creado");
     }//GEN-LAST:event_btnReporteTokensActionPerformed
 
     private void btnReporteJSONActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteJSONActionPerformed
-        this.createarchivo("ReporteJSON.json", "");
+        this.metodos.compararArchivos();
+        this.createarchivo("ReporteJSON.json","{"+this.metodos.jason+"}");
         JOptionPane.showMessageDialog(null, "Reporte Json Creado");
         Runtime rt = Runtime.getRuntime();
         try {
@@ -403,6 +365,7 @@ public class Frame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        agregarConsola("Reporte JSON Creado");
     }//GEN-LAST:event_btnReporteJSONActionPerformed
 
     /**

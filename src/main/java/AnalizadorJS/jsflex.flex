@@ -1,5 +1,7 @@
 package AnalizadorJS;
 import Modelos.Token;
+import java.util.ArrayList;
+
 %%
 %public
 %class Jslex
@@ -9,6 +11,12 @@ import Modelos.Token;
 %char
 %caseless
 %ignorecase
+%{
+    
+    public ArrayList<String> comentarios= new ArrayList<>();
+    public String dato = "";
+
+%}
 L=[a-zA-Z_]+
 D=[0-9]+
 espacio=[ \t\r\n\f\b]+
@@ -18,12 +26,16 @@ espacio=[ \t\r\n\f\b]+
 
 /* Comentarios */
 "/*"~"*/" {
-return new Token(yytext(), "ComentarioM","Lexico", yychar, yyline);
+this.dato=yytext();
+this.comentarios.add(dato);
+return new Token(dato, "Comentario","Lexico", yychar, yyline);
 }
 
 /* Comentarios */
 "//"(.)* {
-return new Token(yytext(), "Comentario","Lexico", yychar, yyline);
+this.dato=yytext();
+this.comentarios.add(dato);
+return new Token(dato, "Comentario","Lexico", yychar, yyline);
 }
 
 /* class */
@@ -136,6 +148,16 @@ return new Token(yytext(), "ParenA","Lexico", yychar, yyline);
 return new Token(yytext(), "ParenC","Lexico", yychar, yyline);
 }
 
+/* Parentesis Cerradura */
+( "[" ) {
+return new Token(yytext(), "CorcheA","Lexico", yychar, yyline);
+}
+
+/* Parentesis Cerradura */
+( "]" ) {
+return new Token(yytext(), "CorcheC","Lexico", yychar, yyline);
+}
+
 /* Coma */
 ( "," ) {
 return new Token(yytext(), "Coma","Lexico", yychar, yyline);
@@ -201,9 +223,24 @@ return new Token(yytext(), "Negacion","Lexico", yychar, yyline);
 return new Token(yytext(), "Incremento","Lexico", yychar, yyline);
 }
 
+/* Incremento */
+( "+=" ) {
+return new Token(yytext(), "MasIgual","Lexico", yychar, yyline);
+}
+
+/* Incremento */
+( "-=" ) {
+return new Token(yytext(), "MenosIgual","Lexico", yychar, yyline);
+}
+
 /* Igualacion */
 ( "==" ) {
 return new Token(yytext(), "Igualacion","Lexico", yychar, yyline);
+}
+
+/* Igualacion */
+( "===" ) {
+return new Token(yytext(), "IgualacionS","Lexico", yychar, yyline);
 }
 
 /* Decremento */
@@ -262,12 +299,12 @@ return new Token(yytext(), "Identificador","Lexico", yychar, yyline);
 }
 
 /* Numero */
-"-"?{D}+ {
+{D}+ {
 return new Token(yytext(), "Entero","Lexico", yychar, yyline);
 }
 
 /* Numero */
-"-"?{D}+"."?{D}+ {
+{D}+"."?{D}+ {
 return new Token(yytext(), "Decimal","Lexico", yychar, yyline);
 }
 

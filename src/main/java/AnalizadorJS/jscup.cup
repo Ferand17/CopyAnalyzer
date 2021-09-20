@@ -1,14 +1,26 @@
 package AnalizadorJS;
 import java_cup.runtime.Symbol;
+import Modelos.TokenClase;
+import Modelos.TokenFuncion;
+import java.util.ArrayList;
+import Modelos.Token;
 parser code
 {:
-    private Symbol s;
-    public void syntax_error(Symbol s){
-        this.s = s;
-    }
-    public Symbol getS(){
-        return this.s;
-}
+    public ArrayList<TokenClase> clases = new ArrayList<>();
+    public ArrayList<TokenFuncion> funciones = new ArrayList<>();
+    public ArrayList<String> variables = new ArrayList<>();
+    public ArrayList<Token> errores = new ArrayList<>();
+    public void syntax_error(Symbol s){ 
+        this.errores.add(new Token(s.value.toString(),"No se esperaba este componente: "+s.value.toString(),"Sintactico",s.right,s.left));;
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        this.errores.add(new Token(s.value.toString(),"No se esperaba este componente: "+s.value.toString(),"Sintactico",s.right,s.left)); 
+    } 
 :};
 
 terminal Class, Var, Let, Const, If, Else, True, False, For, While, Do, Switch,
@@ -16,128 +28,200 @@ terminal Class, Var, Let, Const, If, Else, True, False, For, While, Do, Switch,
     Coma, PuntoComa, Igual, Mayor, Menor, MayorIgual, MenorIgual, Diferencia,
     AND, OR, Negacion, Incremento, Igualacion, Decremento, Mas, Menos, Multiplicacion,
     Division, Potencia, Modulo, Punto, Cadena, CadenaS, Identificador, Entero,
-    Decimal, DosPuntos;
-non terminal INICIO, ;
+    Decimal, DosPuntos,CorcheA,CorcheC,MasIgual,MenosIgual,IgualacionS;
+non terminal INICIO, INSTRUCCION, INSTRUCCIONS, CLASE, LLAMADA, LISTA,
+    FUNCION, VARIABLE, TIPOVARIABLE, IF, ELSE, CONTENIDO, CONSOLE, SWITCH, 
+    CASES, DOWHILE, WHILE, FOR, EXPRE, FINAL, TERMINO, CONDICION, COMPARACION,
+    OPARITMETICO, OPLOGICO, COMPARADOR, LITERAL, ENCAPSULACION, UNIDAD,ASIGNACION;
+precedence right Menos;
+precedence left Multiplicacion,Division,Modulo,Mas,Menos,MasIgual,MenosIgual,Potencia;
+precedence left Mayor, Menor, MayorIgual, MenorIgual, Diferencia, Igualacion,IgualacionS;
+precedence right Negacion, Incremento,Decremento;
+precedence left AND;
+precedence left OR;
 
 start with INICIO;
 
 INICIO ::= 
-    INSTRUCCION
+    INSTRUCCIONS
+;
+
+INSTRUCCIONS ::=
+    INSTRUCCIONS INSTRUCCION 
+    | INSTRUCCION
 ;
 
 INSTRUCCION ::=
-    INSTRUCCION Console Punto Log ParenA DATO ParenC |
-    INSTRUCCION Console Punto Log ParenA DATO ParenC PuntoComa |
-    INSTRUCCION 
-    INSTRUCCION 
-    INSTRUCCION 
-    INSTRUCCION 
-    Console Punto Log ParenA DATO ParenC |
-    Console Punto Log ParenA DATO ParenC PuntoComa |
-;
-
-DATO ::=
-    OPERACION |
-    OPERACIONBOOL |
-    True |
-    False |
-    Require ParenA Cadena ParenC |
-    Require ParenA CadenaS ParenC |
-    Identificador |
-    Decimal |
-    Entero |
-    Cadena |
-    CadenaS |
-    FUNCION 
-;
-
-PARAMETRO ::=
-    PARAMETRO DATO Coma |
-    PARAMETRO DATO |
-    DATO Coma |
-    DATO
-;
-
-TIPODATO ::=
-    Var |
-    Let |
-    Const
-;
-
-OPERACION ::=
-    OPERACION Mas OPERACION |
-    OPERACION Menos OPERACION |
-    OPERACION Multiplicacion OPERACION |
-    OPERACION Division OPERACION |
-    OPERACION Potencia OPERACION |
-    OPERACION Modulo OPERACION |
-    ParenA OPERACION ParenC |
-    OPERACION Incremento |
-    OPERACION Decremento |
-    Menos OPERACION |
-    DATO
-;
-
-OPERACIONBOOL ::=
-    OPERACIONBOOL Mayor OPERACIONBOOL |
-    OPERACIONBOOL Menor OPERACIONBOOL |
-    OPERACIONBOOL MayorIgual OPERACIONBOOL |
-    OPERACIONBOOL MenorIgual OPERACIONBOOL |
-    OPERACIONBOOL Igualacion OPERACIONBOOL |
-    OPERACIONBOOL Diferencia OPERACIONBOOL |
-    OPERACIONBOOL AND OPERACIONBOOL |
-    OPERACIONBOOL OR OPERACIONBOOL |
-    Negacion OPERACIONBOOL |
-    ParenA OPERACIONBOOL ParenC |
-    DATO
+    CLASE
+    | VARIABLE FINAL
+    | FUNCION
+    | LLAMADA FINAL
+    | IF
+    | CONSOLE FINAL
+    | WHILE
+    | DOWHILE FINAL
+    | FOR
+    | SWITCH
+    | Break FINAL
+    | error PuntoComa
+    | error LlaveC
 ;
 
 CLASE ::=
-    Class Identificador ParenA ParenC LlaveA INSTRUCCION LlaveC
-;
-
-FUNCION ::=
-    Identificador ParenA ParenC LlaveA INSTRUCCION LlaveC |
-    Identificador ParenA PARAMETRO ParenC LlaveA INSTRUCCION LlaveC |
-    Identificador ParenA ParenC |
-    Identificador ParenA PARAMETRO ParenC
-;
-
-DOWHILE ::=
-    Do LlaveA INSTRUCCION LlaveC While ParenA OPERACIONBOOL ParenC
-;
-
-WHILE ::=
-    While ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC
-;
-
-SWITCH ::=
-    LlaveA CASE DEFAULT LlaveC 
-;
-
-CASE ::=
-    CASE Case DATO DosPuntos INSTRUCCION Break PuntoComa |
-    CASE Case DATO DosPuntos INSTRUCCION Break |
-    Case DATO DosPuntos INSTRUCCION Break PuntoComa |
-    Case DATO DosPuntos INSTRUCCION Break |
-;
-
-DEFAULT ::=
-    Default DosPuntos INSTRUCCION Break |
-    Default DosPuntos INSTRUCCION Break PuntoComa
-;
-
-FOR ::=
-    For ParenA VARIABLE PuntoComa OPERACIONBOOL PuntoComa OPERACION ParenC LlaveA INSTRUCCION LlaveC
+    Class Identificador:c LlaveA:c1 INSTRUCCIONS LlaveC:c2  {: this.parser.clases.add(new TokenClase(c.toString(),c2left-c1left)); :}
 ;
 
 VARIABLE ::=
-    TIPODATO Identificador Igual DATO |
-    Identificador Igual DATO 
+    TIPOVARIABLE Identificador:id ASIGNACION EXPRE {: this.parser.variables.add(id.toString()); :}
+    | Identificador ASIGNACION EXPRE
+    | Identificador Decremento
+    | Identificador Incremento
+;
+
+ASIGNACION ::=
+    Igual
+    | MenosIgual
+    | MasIgual
+;
+
+TIPOVARIABLE ::=
+    Var
+    | Let
+    | Const
+;
+
+FUNCION ::=
+    Identificador:f ParenA ParenC LlaveA:f1 INSTRUCCIONS LlaveC:f2  {: this.parser.funciones.add(new TokenFuncion(f.toString(),f2left-f1left)); :}
+    | Identificador:f ParenA LISTA ParenC LlaveA:f1 INSTRUCCIONS LlaveC:f2 {: this.parser.funciones.add(new TokenFuncion(f.toString(),f2left-f1left)); :}
+;
+
+LLAMADA ::=
+    Identificador ParenA ParenC 
+    | Identificador ParenA LISTA ParenC
+;
+
+LISTA ::=
+    LISTA Coma EXPRE
+    | LISTA PuntoComa EXPRE
+    | EXPRE
+;
+
+EXPRE ::=
+    Menos EXPRE
+    | EXPRE OPARITMETICO EXPRE
+    | TERMINO
+    | UNIDAD
+    | CONDICION
+    | COMPARACION
+    | Require ParenA Cadena ParenC
+    | CorcheA CorcheC
+    | CorcheA LISTA CorcheC
+;
+
+TERMINO ::=
+    Identificador
+    | LLAMADA
+    | LITERAL
+    | ENCAPSULACION
+;
+
+CONDICION ::=
+    Negacion EXPRE
+    | EXPRE OPLOGICO EXPRE 
+;
+
+COMPARACION ::=
+    EXPRE COMPARADOR EXPRE 
 ;
 
 IF ::=
-    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC |
-    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC Else IF|
-    If ParenA OPERACIONBOOL ParenC LlaveA INSTRUCCION LlaveC Else LlaveA INSTRUCCION LlaveC |
+    If ParenA EXPRE ParenC CONTENIDO ELSE
+    | If ParenA EXPRE ParenC INSTRUCCION
+;
+
+ELSE ::=
+    Else CONTENIDO
+    | Else IF
+    | 
+;
+
+CONTENIDO ::=
+    LlaveA INSTRUCCIONS LlaveC
+    | LlaveA LlaveC
+;
+
+CONSOLE ::=
+    Console Punto Log ParenA EXPRE ParenC 
+;
+
+COMPARADOR ::=
+    Mayor
+    | Menor
+    | MayorIgual
+    | MenorIgual
+    | Diferencia
+    | Negacion
+    | Igualacion
+    | IgualacionS
+;
+
+
+OPARITMETICO ::=
+    Mas
+    | Menos
+    | Multiplicacion
+    | Division
+    | Potencia
+    | Modulo
+;
+
+OPLOGICO ::=
+    AND
+    | OR
+;
+
+
+ENCAPSULACION ::=
+    ParenA EXPRE ParenC
+;
+
+UNIDAD ::=
+    EXPRE Decremento
+    | EXPRE Incremento
+;
+
+LITERAL ::=
+    Cadena
+    | CadenaS
+    | Entero
+    | Decimal 
+    | True
+    | False
+;
+
+WHILE ::=
+    While ParenA EXPRE ParenC CONTENIDO
+;
+
+DOWHILE ::=
+    Do CONTENIDO While ParenA EXPRE ParenC
+;
+
+FOR ::=
+    For ParenA VARIABLE PuntoComa EXPRE PuntoComa VARIABLE ParenC CONTENIDO
+;
+
+SWITCH ::=
+    Switch ParenA TERMINO ParenC LlaveA CASES LlaveC
+;
+
+CASES ::=
+    CASES Case TERMINO DosPuntos INSTRUCCIONS
+    | Case TERMINO DosPuntos INSTRUCCIONS
+    | Default DosPuntos INSTRUCCIONS
+;
+
+FINAL ::=
+    PuntoComa
+    | 
 ;

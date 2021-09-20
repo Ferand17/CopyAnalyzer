@@ -1,14 +1,68 @@
 package AnalizadorFCA;
+import java.util.ArrayList;
 import java_cup.runtime.Symbol;
+import Modelos.Token;
+import Modelos.Dato;
+import Modelos.Variable;
+import Main.Grafica;
 parser code
 {:
-    private Symbol s;
-    public void syntax_error(Symbol s){
-        this.s = s;
+    public Grafica auxgrafica = new Grafica();
+    public String titulo= "";
+    public String titulox ="";
+    public String tituloy = "";
+    public String auxDato = "";
+    public String auxCarac = "";
+    public ArrayList<Object> datosx = new ArrayList<>();
+    public ArrayList<Object> datosy = new ArrayList<>();
+    public ArrayList<Token> errores = new ArrayList<>();
+    public ArrayList<String> titulos = new ArrayList<>();
+    
+    void direccion(String dato){
+        if(this.auxCarac.equalsIgnoreCase("Titulo")){
+            this.titulo=dato.replaceAll("\"", "");
+            this.titulos.add(dato.replaceAll("\"", ""));
+        }else if(this.auxCarac.equalsIgnoreCase("Ejex")){
+            this.datosx.add(dato);
+        }else if(this.auxCarac.equalsIgnoreCase("Valores")){
+            this.datosy.add(dato);
+        }else if(this.auxCarac.equalsIgnoreCase("TituloX")){
+            this.titulox=dato;
+        }else if(this.auxCarac.equalsIgnoreCase("TituloY")){
+            this.tituloy=dato;
+        }else if(this.auxCarac.equalsIgnoreCase("Archivo")){
+            this.datosx.add("Comentarios");
+            this.datosx.add("Variables");
+            this.datosx.add("Clases");
+            this.datosx.add("Funciones");
+            this.datosy.add(this.auxgrafica.compararComentarios().toString());
+            this.datosy.add(this.auxgrafica.compararVariables().toString());
+            this.datosy.add(this.auxgrafica.compararClases().toString());
+            this.datosy.add(this.auxgrafica.compararFunciones().toString());
+        }else{
+            this.auxDato = dato;
+        }
     }
-    public Symbol getS(){
-        return this.s;
-}
+    void eliminarDatos(){
+        this.titulo="";
+        this.titulox="";
+        this.tituloy="";
+        this.auxDato="";
+        this.auxCarac="";
+        this.datosx.clear();
+        this.datosy.clear();
+    }
+    public void syntax_error(Symbol s){ 
+        this.errores.add(new Token(s.value.toString(),"No se esperaba este componente: "+s.value.toString(),"Sintactico",s.right,s.left));
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        this.errores.add(new Token(s.value.toString(),"No se esperaba este componente: "+s.value.toString(),"Sintactico",s.right,s.left));
+    }  
 :};
 
 terminal  Compare, DefinirGlobales, GraficaBarras, String, Double, Titulo,
@@ -25,60 +79,66 @@ INICIO ::=
 ;
 
 REPORTE ::= 
-    REPORTE DefinirGlobales LlaveA VARIABLE LlaveC |
-    REPORTE GraficaBarras LlaveA CONFIGURACION LlaveC |
-    REPORTE GraficaPie LlaveA CONFIGURACION LlaveC |
-    REPORTE GraficaLineas LlaveA CONFIGURACION LlaveC |
-    REPORTE GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC |
-    DefinirGlobales LlaveA VARIABLE LlaveC |
-    GraficaBarras LlaveA CONFIGURACION LlaveC |
-    GraficaPie LlaveA CONFIGURACION LlaveC |
-    GraficaLineas LlaveA CONFIGURACION LlaveC |
-    GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC
+    REPORTE GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC 
+    | DefinirGlobales LlaveA VARIABLE LlaveC 
+    | GraficaBarras LlaveA CONFIGURACION LlaveC 
+    | GraficaPie LlaveA CONFIGURACION LlaveC 
+    | GraficaLineas LlaveA CONFIGURACION LlaveC 
+    | GenerarReporteEstadistico LlaveA EJECUTARREPORTE LlaveC
 ;
 
 VARIABLE ::= 
-    VARIABLE TIPODATO Identificador Igual DATO PuntoComa |
-    TIPODATO Identificador Igual DATO PuntoComa
+    VARIABLE TIPODATO Identificador:f Igual DATO PuntoComa {: this.parser.auxgrafica.variables.add(new Variable(f.toString(), this.parser.auxDato)); :}
+    | TIPODATO Identificador:f Igual DATO PuntoComa {: this.parser.auxgrafica.variables.add(new Variable(f.toString(), this.parser.auxDato)); :}
 ;
 
 EJECUTARREPORTE ::=
-    Compare ParenA Cadena Coma Cadena ParenC PuntoComa |
-    Compare ParenA CadenaS Coma CadenaS ParenC PuntoComa
+    Compare ParenA Cadena:f1 Coma Cadena:f2 ParenC PuntoComa {: this.parser.auxgrafica.analisisArchivo(f1.toString().replaceAll("\"", ""), this.parser.auxgrafica.archivosJS1); this.parser.auxgrafica.analisisArchivo(f2.toString().replaceAll("\"", ""), this.parser.auxgrafica.archivosJS2); :}
+    | Compare ParenA CadenaS Coma CadenaS ParenC PuntoComa
+    | EJECUTARREPORTE DefinirGlobales LlaveA VARIABLE LlaveC
+    | EJECUTARREPORTE GraficaBarras LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficabarras(this.parser.titulo, this.parser.titulox, this.parser.tituloy, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | EJECUTARREPORTE GraficaPie LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficaPie(this.parser.titulo, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | EJECUTARREPORTE GraficaLineas LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficaLinea(this.parser.titulo, this.parser.titulox, this.parser.tituloy, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | DefinirGlobales LlaveA VARIABLE LlaveC 
+    | GraficaBarras LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficabarras(this.parser.titulo, this.parser.titulox, this.parser.tituloy, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | GraficaPie LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficaPie(this.parser.titulo, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | GraficaLineas LlaveA CONFIGURACION LlaveC {: this.parser.auxgrafica.mostrarGraficaLinea(this.parser.titulo, this.parser.titulox, this.parser.tituloy, this.parser.auxgrafica.datosGrafica(this.parser.datosx, this.parser.datosy)); this.parser.eliminarDatos(); :}
+    | error PuntoComa
+    | error LlaveC
 ;
 
 CONFIGURACION ::=
-    CONFIGURACION CARACTERISTICA DosPuntos DATO PuntoComa |
-    CARACTERISTICA DosPuntos DATO PuntoComa
+    CONFIGURACION CARACTERISTICA DosPuntos DATO PuntoComa 
+    | CARACTERISTICA DosPuntos DATO PuntoComa 
 ;
 
 TIPODATO ::=
-    String |
-    Double
+    String
+    | Double
 ;
 
 DATO ::=
-    Identificador |
-    Numero |
-    Cadena |
-    CadenaS |
-    CorcheA LISTA CorcheC |
-    Dollar LlaveA PuntajeGeneral LlaveC |
-    Dollar LlaveA PuntajeEspecifico Coma Cadena Coma Cadena Coma Cadena LlaveC
+    Identificador:f {: this.parser.direccion(this.parser.auxgrafica.retornarValor(f.toString()));  :}
+    | Numero:f {: this.parser.direccion(f.toString()); :}
+    | Cadena:f {: this.parser.direccion(f.toString()); :}
+    | CadenaS:f {: this.parser.direccion(f.toString()); :}
+    | CorcheA LISTA CorcheC 
+    | Dollar LlaveA PuntajeGeneral LlaveC {: this.parser.direccion(this.parser.auxgrafica.compararArchivos().toString()); :}
+    | Dollar LlaveA PuntajeEspecifico Coma Cadena:f Coma Cadena:f1 Coma Cadena:f2 LlaveC {: this.parser.direccion(this.parser.auxgrafica.retornarPuntajeEspecifico(f.toString().replaceAll("\"", ""), f1.toString().replaceAll("\"", ""), f2.toString().replaceAll("\"", "")).toString()); :}
 ;
 
 CARACTERISTICA ::=
-    Titulo |
-    Ejex |
-    Valores |
-    TituloX |
-    TituloY |
-    Archivo 
+    Titulo:f {: this.parser.auxCarac=f.toString(); :}
+    | Ejex:f {: this.parser.auxCarac=f.toString(); :}
+    | Valores:f {: this.parser.auxCarac=f.toString(); :}
+    | TituloX:f {: this.parser.auxCarac=f.toString(); :}
+    | TituloY:f {: this.parser.auxCarac=f.toString(); :}
+    | Archivo:f {: this.parser.auxCarac=f.toString(); :}
 ;
 
 LISTA ::=
-    LISTA DATO Coma |
-    LISTA DATO |
-    DATO Coma |
-    DATO
+    LISTA DATO Coma 
+    | LISTA DATO 
+    | DATO Coma 
+    | DATO
 ;

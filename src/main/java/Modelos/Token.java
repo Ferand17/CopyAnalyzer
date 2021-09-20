@@ -10,7 +10,7 @@ package Modelos;
  * @author ferand20
  */
 public class Token {
-    String lexema,tipoToken,tipo;
+    String lexema,tipoToken,tipo,archivo;
     int columna,fila;
 
     public Token(String lexema, String tipoToken, String tipo, int columna, int fila) {
@@ -59,6 +59,14 @@ public class Token {
 
     public void setFila(int fila) {
         this.fila = fila;
+    }
+
+    public String getArchivo() {
+        return archivo;
+    }
+
+    public void setArchivo(String archivo) {
+        this.archivo = archivo;
     }
     
     
